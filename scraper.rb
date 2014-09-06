@@ -42,18 +42,21 @@ end
 urls = [
   "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_2_Development_Applications",
   "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_3_Development_Applications"
-  # "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations"
-
 ]
 
 urls.each do |url|
 
-  agent = Mechanize.new
-  page = agent.get(url)
+  begin
+    agent = Mechanize.new
+    page = agent.get(url)
 
-  page.search('.content a').each do |a|
+    page.search('.content a').each do |a|
     info_url = a["href"]
-    application_detail(info_url)
+      application_detail(info_url)
+    end
+  rescue Net::HTTPNotFound => e
+    # Ignore failed hits to http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations
+    puts e.get_message
   end
 
 end
