@@ -13,7 +13,12 @@ def application_detail(info_url)
   end
 
   m = abstract.inner_text.match(/Closing Date: (\d+\/\d+\/\d+)/)
-  on_notice_to = Date.strptime(m[1], "%d/%m/%Y").to_s
+  if m && m[1]
+    on_notice_to = Date.strptime(m[1], "%d/%m/%Y").to_s
+  else
+    m = abstract.inner_text.match(/Closing Date: (.*)/)
+    on_notice_to = Date.parse(m[1]).to_s
+  end
 
   s = page.at('table').search('td strong')
 
@@ -36,8 +41,8 @@ end
 
 urls = [
   "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_2_Development_Applications",
-  "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_3_Development_Applications",
-  "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations"
+  "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_3_Development_Applications"
+  # "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations"
 
 ]
 
