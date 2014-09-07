@@ -54,9 +54,9 @@ urls.each do |url|
     info_url = a["href"]
       application_detail(info_url)
     end
-  rescue Net::HTTPNotFound => e
+  rescue Mechanize::ResponseCodeError => e
     # Ignore failed hits to http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations
-    puts e.get_message
+    puts e.message
   end
 
 end
