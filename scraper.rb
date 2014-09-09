@@ -51,12 +51,12 @@ urls.each do |url|
     page = agent.get(url)
 
     page.search('.content a').each do |a|
-    info_url = a["href"]
+      info_url = a["href"]
       application_detail(info_url)
     end
   rescue Mechanize::ResponseCodeError => e
     # Ignore failed hits to http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations
-    puts e.message
+    puts "Ignoring: #{e.message}"
   end
 
 end
