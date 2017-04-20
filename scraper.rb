@@ -1,62 +1,30 @@
 require 'scraperwiki'
-# Moved from https://github.com/openaustralia/planningalerts-parsers/blob/master/scrapers/burnside_scraper.rb
-
 require 'mechanize'
 
-def application_detail(info_url)
-  agent = Mechanize.new
+url_base = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/Development-Applications/Development-Applications-on-Public-Notification"
+
+agent = Mechanize.new
+page = agent.get(url_base)
+
+page.search('div.list-container a').each do |a|
+  info_url = a["href"]
   page = agent.get(info_url)
 
-  abstract = page.at('p.defaultAbstract')
-  unless abstract
-    return
-  end
-
-  m = abstract.inner_text.match(/Closing Date: (\d+\/\d+\/\d+)/)
-  if m && m[1]
-    on_notice_to = Date.strptime(m[1], "%d/%m/%Y").to_s
-  else
-    m = abstract.inner_text.match(/Closing Date: (.*)/)
-    on_notice_to = Date.parse(m[1]).to_s
-  end
-
-  s = page.at('table').search('td strong')
-
   record = {
-    "council_reference" => s.find{|a| a.inner_text.strip == "Application No:"}.next_sibling.to_s,
-    "description" => s.find{|a| a.inner_text.strip == "Nature of Development:"}.next_sibling.to_s,
-    "address" => page.at('h2').inner_text + ", SA",
+    "council_reference" => page.search('span.field-label:contains("Application number") + span.field-value').inner_text.strip.to_s,
+    "address" => page.at('h1').inner_text + ", SA",
+    "description" => page.search('span.field-label:contains("Nature of development") + span.field-value').inner_text.strip.to_s,
     "info_url" => info_url,
-    "comment_url" => info_url,
+    "comment_url" => "mailto:burnside@burnside.sa.gov.au",
     "date_scraped" => Date.today.to_s,
-    "on_notice_to" => on_notice_to,
+    "on_notice_to" => Date.parse(page.search('h2.side-box-title:contains("Closing Date") + div').inner_text.strip.split(', ')[0]).to_s,
   }
+
   if (ScraperWiki.select("* from data where `council_reference`='#{record['council_reference']}'").empty? rescue true)
+    puts "Saving record " + record['council_reference'] + " - " + record['address']
+#     puts record
     ScraperWiki.save_sqlite(['council_reference'], record)
   else
     puts "Skipping already saved record " + record['council_reference']
   end
-end
-
-
-urls = [
-  "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_2_Development_Applications",
-  "http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Category_3_Development_Applications"
-]
-
-urls.each do |url|
-
-  begin
-    agent = Mechanize.new
-    page = agent.get(url)
-
-    page.search('.content a').each do |a|
-      info_url = a["href"]
-      application_detail(info_url)
-    end
-  rescue Mechanize::ResponseCodeError => e
-    # Ignore failed hits to http://www.burnside.sa.gov.au/Develop/Planning_Development/Development_Applications_on_Public_Notification/Section_49_Public_Consultations
-    puts "Ignoring: #{e.message}"
-  end
-
 end
