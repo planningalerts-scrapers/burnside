@@ -12,7 +12,7 @@ page.search('div.list-container a').each do |a|
 
   record = {
     "council_reference" => page.search('span.field-label:contains("Application number") + span.field-value').inner_text.strip.to_s,
-    "address" => page.at('h1').inner_text + ", SA",
+    "address" => page.search('span.field-label:contains("Address") ~ span').inner_text.gsub(/\u00a0/, ' ').gsub('View Map', '').strip + ", SA",
     "description" => page.search('span.field-label:contains("Nature of development") + span.field-value').inner_text.strip.to_s,
     "info_url" => info_url,
     "comment_url" => "mailto:burnside@burnside.sa.gov.au",
