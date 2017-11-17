@@ -1,7 +1,7 @@
 require 'scraperwiki'
 require 'mechanize'
 
-url_base = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/Development-Applications/Development-Applications-on-Public-Notification"
+url_base = "http://www.burnside.sa.gov.au/Planning-Business/Planning-Development/Development-Applications/Development-Applications-on-Public-Notification"
 
 agent = Mechanize.new
 page = agent.get(url_base)
