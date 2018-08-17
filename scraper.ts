@@ -19,6 +19,7 @@ sqlite3.verbose();
 
 const DevelopmentApplicationsUrl = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/New-Planning-Applications-Register";
 const CommentUrl = "mailto:burnside@burnside.sa.gov.au";
+const MorphProxy = "http://118.127.99.93:53281"
 
 declare const global: any;
 declare const process: any;
@@ -182,7 +183,7 @@ async function parsePdf(url: string) {
 
     // Read the PDF.
 
-    let buffer = await request({ url: url, encoding: null, proxy: process.env.MORPH_PROXY });
+    let buffer = await request({ url: url, encoding: null, proxy: MorphProxy });
     await sleep(2000 + getRandom(0, 5) * 1000);
 
     // Parse the PDF.  Each page has details of a single application (which in some cases may
@@ -262,7 +263,7 @@ async function main() {
     // Retrieve the main page.
 
     console.log(`Retrieving page: ${DevelopmentApplicationsUrl}`);
-    let body = await request({ url: DevelopmentApplicationsUrl, proxy: process.env.MORPH_PROXY });
+    let body = await request({ url: DevelopmentApplicationsUrl, proxy: MorphProxy });
     let $ = cheerio.load(body);
     await sleep(2000 + getRandom(0, 5) * 1000);
 
