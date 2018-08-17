@@ -19,7 +19,7 @@ sqlite3.verbose();
 
 const DevelopmentApplicationsUrl = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/New-Planning-Applications-Register";
 const CommentUrl = "mailto:burnside@burnside.sa.gov.au";
-const MorphProxy = "http://118.127.99.93:53281"
+const MorphProxy = "http://118.127.99.93:53281";
 
 declare const global: any;
 declare const process: any;
