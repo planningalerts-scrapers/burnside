@@ -19,7 +19,6 @@ sqlite3.verbose();
 
 const DevelopmentApplicationsUrl = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/New-Planning-Applications-Register";
 const CommentUrl = "mailto:burnside@burnside.sa.gov.au";
-const MorphProxy = "http://118.127.99.93:53281";
 
 declare const global: any;
 declare const process: any;
@@ -43,7 +42,7 @@ async function insertRow(database, developmentApplication) {
         let sqlStatement = database.prepare("insert or ignore into [data] values (?, ?, ?, ?, ?, ?, ?)");
         sqlStatement.run([
             developmentApplication.scrapeDate,
-            developmentApplication.reason,
+            developmentApplication.description,
             developmentApplication.informationUrl,
             developmentApplication.applicationNumber,
             developmentApplication.address,
@@ -56,9 +55,9 @@ async function insertRow(database, developmentApplication) {
             }
             else {
                 if (this.changes > 0)
-                    console.log(`    Inserted: application \"${developmentApplication.applicationNumber}\" with address \"${developmentApplication.address}\" and reason \"${developmentApplication.reason}\" into the database.`);
+                    console.log(`    Inserted: application \"${developmentApplication.applicationNumber}\" with address \"${developmentApplication.address}\" and description \"${developmentApplication.description}\" into the database.`);
                 else
-                    console.log(`    Skipped: application \"${developmentApplication.applicationNumber}\" with address \"${developmentApplication.address}\" and reason \"${developmentApplication.reason}\" because it was already present in the database.`);
+                    console.log(`    Skipped: application \"${developmentApplication.applicationNumber}\" with address \"${developmentApplication.address}\" and description \"${developmentApplication.description}\" because it was already present in the database.`);
                 sqlStatement.finalize();  // releases any locks
                 resolve(row);
             }
@@ -154,7 +153,7 @@ function parseApplicationElements(elements: Element[], informationUrl: string) {
     let receivedDate = getBoundedText(elements, "Application Date", undefined, "Applicant's Name");
     if (receivedDate === undefined)
         receivedDate = getBoundedText(elements, "Registered", undefined, "Applicant's Name");  // some PDFs use the text "Registered" and others use "Application Date"
-    let reason = getBoundedText(elements, "Description", "Applicant's Name", "Property Address");
+    let description = getBoundedText(elements, "Description", "Applicant's Name", "Property Address");
     let address = getBoundedText(elements, "Property Address", "Applicant's Name", "Legal Description");
 
     // A valid application must at least have an application number and an address.
@@ -166,7 +165,7 @@ function parseApplicationElements(elements: Element[], informationUrl: string) {
     return {
         applicationNumber: applicationNumber,
         address: address,
-        reason: ((reason === "") ? "No description provided" : reason),
+        description: ((description === "") ? "No description provided" : description),
         informationUrl: informationUrl,
         commentUrl: CommentUrl,
         scrapeDate: moment().format("YYYY-MM-DD"),
@@ -181,7 +180,7 @@ async function parsePdf(url: string) {
 
     // Read the PDF.
 
-    let buffer = await request({ url: url, encoding: null, proxy: MorphProxy });
+    let buffer = await request({ url: url, encoding: null, proxy: process.env.MORPH_PROXY });
     await sleep(2000 + getRandom(0, 5) * 1000);
 
     // Parse the PDF.  Each page has details of a single application (which in some cases may
@@ -261,7 +260,7 @@ async function main() {
     // Retrieve the main page.
 
     console.log(`Retrieving page: ${DevelopmentApplicationsUrl}`);
-    let body = await request({ url: DevelopmentApplicationsUrl, proxy: MorphProxy });
+    let body = await request({ url: DevelopmentApplicationsUrl, proxy: process.env.MORPH_PROXY });
     let $ = cheerio.load(body);
     await sleep(2000 + getRandom(0, 5) * 1000);
 
