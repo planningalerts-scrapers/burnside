@@ -4,8 +4,6 @@ require 'mechanize'
 url_base = "https://www.burnside.sa.gov.au/Planning-Business/Planning-Development/Development-Applications/Development-Applications-on-Public-Notification"
 
 agent = Mechanize.new
-OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
-agent.verify_mode = OpenSSL::SSL::VERIFY_NONE
 page = agent.get(url_base)
 
 page.search('div.list-container a').each do |a|
