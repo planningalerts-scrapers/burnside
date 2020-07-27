@@ -1,1 +1,1 @@
-This is a scraper that runs on [Morph](https://morph.io).  It scrapes lodged development applications from the South Australian [City of Burnside web site](https://www.burnside.sa.gov.au).
+Burnside moved to Tech One. See https://github.com/planningalerts-scrapers/issues/issues/73
